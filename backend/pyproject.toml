@@ -1,0 +1,23 @@
+[project]
+name = "url-shortner-backend"
+description = "Url shortner creater"
+version = "0.0.1"
+
+authors = [
+    { name = "Ruben Lousada", email = "ruben.lousada.dev@gmail.com" },
+]
+
+requires-python = "==3.14.*"
+
+dependencies = [
+    "fastapi[standard]==0.139.0",
+    "sqlalchemy==2.0.51",
+    "pydantic==2.13.4",
+    "pydantic-settings==2.14.2",
+    "psycopg[binary]==3.3.4",
+]
+
+[project.optional-dependencies]
+deployment = [
+    "gunicorn==26.0.0"
+]
