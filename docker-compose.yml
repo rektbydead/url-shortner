@@ -31,8 +31,6 @@ services:
       - ./postgresql/replica/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./postgresql/replica/start-replica.sh:/start-replica.sh
     command: sh /start-replica.sh
-    deploy:
-      replicas: 2
     depends_on:
       postgres-primary:
         condition: service_healthy

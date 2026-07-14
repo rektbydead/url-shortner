@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime, timedelta, UTC
 from http import HTTPStatus
 from typing import Annotated
@@ -26,6 +27,7 @@ class ShortUrlService:
         expires_at = create_at + timedelta(days=dto.duration)
 
         entity = ShortUrlEntity(
+            uuid=uuid.uuid4(),
             original_url=str(dto.original_url),
             created_at=create_at,
             expires_at=expires_at,
