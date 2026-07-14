@@ -1,5 +1,5 @@
 services:
-  postgres:
+  postgres-primary:
     image: docker.io/postgres:18-alpine
     environment:
       - POSTGRES_USER=${DATABASE_USER}
@@ -7,13 +7,36 @@ services:
       - POSTGRES_DB=${DATABASE_NAME}
       - PGDATABASE=${DATABASE_NAME}
     volumes:
-      - postgres_data:/var/lib/postgresql
+      - primary_postgres_data:/var/lib/postgresql/data
+      - ./postgresql/primary/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./postgresql/primary/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./postgresql/init:/docker-entrypoint-initdb.d
+    command: >
+      postgres
+        -c config_file=/etc/postgresql/postgresql.conf
+        -c hba_file=/etc/postgresql/pg_hba.conf
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DATABASE_USER}" ]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  postgres-replica:
+    image: docker.io/postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      PGPASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - replica_postgres_data:/var/lib/postgresql/data
+      - ./postgresql/replica/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./postgresql/replica/start-replica.sh:/start-replica.sh
+    command: sh /start-replica.sh
+    deploy:
+      replicas: 2
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
 
   backend:
     build:
@@ -23,7 +46,11 @@ services:
       - ./backend/.env
     ports:
       - "8000:8000"
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  primary_postgres_data:
+  replica_postgres_data:
