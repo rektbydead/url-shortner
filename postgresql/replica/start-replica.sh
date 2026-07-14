@@ -2,20 +2,20 @@
 set -e
 
 echo ">> init-data.sh >> Deleting existing data"
-rm -rf /var/lib/postgresql/data/*
+rm -rf "$PGDATA"/*
 
 echo ">> init-data.sh >> Taking base backup from primary "
 
 pg_basebackup \
       -h postgres-primary \
-      -D "/var/lib/postgresql/data/" \
+      -D $PGDATA \
       -U replicator \
       -Fp \
       -Xs \
       -P \
       -R
 
-echo ">> init-data.sh >> Overwriting  "
-cp /etc/replica/postgresql.conf /var/lib/postgresql/data/postgresql.conf
+echo ">> init-data.sh >> Overwriting postgresql.conf "
+cp /etc/postgresql/postgresql.conf "$PGDATA/postgresql.conf"
 
-exec postgres -c config_file=/etc/postgresql/postgresql.conf
+exec postgres -D "$PGDATA" -c config_file=/etc/postgresql/postgresql.conf
