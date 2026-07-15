@@ -1,7 +1,13 @@
-from sqlalchemy.orm import Session
+from typing import Any, Generator
 
 from settings.session_local import SessionLocal
 
 
-def get_session() -> Session:
-    return SessionLocal()
+def get_session() -> Generator[Any, Any, None]:
+    session = SessionLocal()
+
+    try:
+        yield session
+        session.commit()
+    finally:
+        session.close()
