@@ -6,7 +6,8 @@ from sqlalchemy.engine import Engine
 
 from dependencies.get_engine import get_engine
 from entities.base_entity import BaseEntity
-from routers import url_shortner_router
+from routers import url_shortner_router, health_check
+
 
 def create_db_and_tables(engine: Engine):
     print("Preparing DB...")
@@ -21,4 +22,5 @@ async def lifespan(_: FastAPI) -> AsyncGenerator:
 
 app = FastAPI(lifespan=lifespan)
 
+app.include_router(health_check.router, prefix="/health", tags=["health-check"])
 app.include_router(url_shortner_router.router, prefix="/shortner", tags=["urls"])
