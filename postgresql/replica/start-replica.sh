@@ -2,7 +2,7 @@
 set -e
 
 echo ">> init-data.sh >> Deleting existing data"
-rm -rf "$PGDATA"/*
+rm -rf "${PGDATA:?}"/*
 
 echo ">> init-data.sh >> Taking base backup from primary "
 
