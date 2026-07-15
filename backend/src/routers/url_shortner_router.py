@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
@@ -21,6 +22,6 @@ def create_url_shortner(
 @router.get("/{identifier}", response_model=ShortUrlGetter, response_model_exclude_none=True)
 def get_url_shortner(
         service: Annotated[ShortUrlService, Depends(get_short_url_service)],
-        identifier: str,
+        identifier: UUID,
 ) -> ShortUrlGetter:
     return service.get(identifier)

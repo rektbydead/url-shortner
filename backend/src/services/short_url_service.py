@@ -44,8 +44,8 @@ class ShortUrlService:
         )
 
     @use_replica
-    def get(self, identifier: str) -> ShortUrlGetter:
-        short_url_getter = self.short_url_repository.get_by_uuid(UUID(identifier))
+    def get(self, identifier: UUID) -> ShortUrlGetter:
+        short_url_getter = self.short_url_repository.get_by_uuid(identifier)
 
         if short_url_getter is None:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Short url not found")

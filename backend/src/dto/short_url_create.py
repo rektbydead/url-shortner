@@ -1,6 +1,6 @@
-from pydantic import BaseModel, AnyHttpUrl
+from pydantic import BaseModel, AnyHttpUrl, PositiveInt, Field
 
 
 class ShortUrlCreate(BaseModel):
     original_url: AnyHttpUrl
-    duration: int
+    duration: PositiveInt = Field(gt=0)
