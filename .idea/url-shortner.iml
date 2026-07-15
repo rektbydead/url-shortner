@@ -8,7 +8,7 @@
       <excludeFolder url="file://$MODULE_DIR$/backend/build" />
       <excludeFolder url="file://$MODULE_DIR$/backend/src/url_shortner_backend.egg-info" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.12 virtualenv at ~/Desktop/school work/url-shortner/backend/.venv" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.14 (url-shortner)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
