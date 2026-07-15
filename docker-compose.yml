@@ -30,7 +30,8 @@ services:
     volumes:
       - ./postgresql/replica/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./postgresql/replica/start-replica.sh:/start-replica.sh
-    command: sh /start-replica.sh
+    command: sh /start-replica.s
+    restart: unless-stopped
     deploy:
       replicas: 2
     depends_on:
