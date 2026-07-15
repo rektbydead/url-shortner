@@ -7,6 +7,8 @@ from uuid import UUID
 from fastapi import Depends, HTTPException
 from pydantic import AnyHttpUrl
 
+from annotations.use_primary import use_primary
+from annotations.use_replica import use_replica
 from dependencies.get_short_url_repository import get_short_url_repository
 from dto.short_url_create import ShortUrlCreate
 from dto.short_url_getter import ShortUrlGetter
@@ -41,6 +43,7 @@ class ShortUrlService:
             expires_at=expires_at,
         )
 
+    @use_replica
     def get(self, identifier: str) -> ShortUrlGetter:
         short_url_getter = self.short_url_repository.get_by_uuid(UUID(identifier))
 

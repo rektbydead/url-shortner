@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends
 from dependencies.get_short_url_service import get_short_url_service
 from dto.short_url_create import ShortUrlCreate
 from dto.short_url_getter import ShortUrlGetter
-from entities.short_url_entity import ShortUrlEntity
 from services.short_url_service import ShortUrlService
 
 router = APIRouter()
