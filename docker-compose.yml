@@ -50,6 +50,20 @@ services:
       postgres-primary:
         condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  k6:
+    image: docker.io/grafana/k6:latest
+    volumes:
+      - ./k6:/scripts
+    command: run /scripts/stress.js
+    depends_on:
+      backend:
+        condition: service_healthy
 
 volumes:
   primary_postgres_data:
