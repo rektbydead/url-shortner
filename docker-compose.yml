@@ -7,7 +7,7 @@ services:
       - POSTGRES_DB=${DATABASE_NAME}
       - PGDATABASE=${DATABASE_NAME}
     volumes:
-      - primary_postgres_data:/var/lib/postgresql/data
+      - primary_postgres_data:/var/lib/postgresql/18/docker
       - ./postgresql/primary/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./postgresql/primary/pg_hba.conf:/etc/postgresql/pg_hba.conf
       - ./postgresql/primary/init:/docker-entrypoint-initdb.d
