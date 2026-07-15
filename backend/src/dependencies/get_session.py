@@ -9,5 +9,8 @@ def get_session() -> Generator[Any, Any, None]:
     try:
         yield session
         session.commit()
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()

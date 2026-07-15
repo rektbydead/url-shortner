@@ -14,7 +14,6 @@ class ShortUrlRepository:
 
     def create(self, short_url_entity: ShortUrlEntity):
         self._session.add(short_url_entity)
-        self._session.commit()
         return short_url_entity
 
     def get_by_uuid(self, uuid: UUID) -> ShortUrlGetter | None:
