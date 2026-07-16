@@ -18,4 +18,9 @@ def get_engine(type: EngineType = EngineType.WRITE) -> Engine:
 
     print(f"Creating {type=} {url=}")
 
-    return create_engine(url, echo=True)
+    return create_engine(
+        url,
+        pool_size=10,       # Default 10 connections
+        max_overflow=20,    # Optional connection on traffic spike
+        pool_timeout=30,    # Maximum time waiting for resource
+    )
