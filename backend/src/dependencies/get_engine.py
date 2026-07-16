@@ -1,26 +1,30 @@
 from functools import lru_cache
+from itertools import cycle
 
 from sqlalchemy.engine import Engine, create_engine
 
 from enums.EngineType import EngineType
 from settings.settings import Settings
 
+_settings = Settings()
+_read_url_cycle = cycle(_settings.READ_DATABASE_URLS)
 
-@lru_cache(maxsize=2)
-def get_engine(type: EngineType = EngineType.WRITE) -> Engine:
-    settings = Settings()
 
-    url = (
-        settings.WRITE_DATABASE_URL
-        if type is EngineType.WRITE
-        else settings.READ_DATABASE_URL
-    )
-
-    print(f"Creating {type=} {url=}")
-
+@lru_cache()
+def _create_engine(
+        url: str,
+) -> Engine:
     return create_engine(
         url,
-        pool_size=10,       # Default 10 connections
-        max_overflow=20,    # Optional connection on traffic spike
-        pool_timeout=30,    # Maximum time waiting for resource
+        pool_size=10,  # Default 10 connections
+        max_overflow=20,  # Optional connection on traffic spike
+        pool_timeout=30,  # Maximum time waiting for resource
     )
+
+
+def get_engine(type: EngineType = EngineType.WRITE) -> Engine:
+    if type == EngineType.WRITE:
+        return _create_engine(_settings.WRITE_DATABASE_URL)
+
+    url = next(_read_url_cycle)
+    return _create_engine(url)
