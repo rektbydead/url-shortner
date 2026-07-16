@@ -22,8 +22,8 @@ def _create_engine(
     )
 
 
-def get_engine(type: EngineType = EngineType.WRITE) -> Engine:
-    if type == EngineType.WRITE:
+def get_engine(engine_type: EngineType = EngineType.WRITE) -> Engine:
+    if engine_type == EngineType.WRITE:
         return _create_engine(_settings.WRITE_DATABASE_URL)
 
     url = next(_read_url_cycle)
