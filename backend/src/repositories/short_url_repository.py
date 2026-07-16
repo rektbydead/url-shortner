@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, select
 

@@ -1,0 +1,11 @@
+services:
+  postgres-replica-base:
+    image: docker.io/postgres:18-alpine
+    user: postgres
+    environment:
+      PGPASSWORD: ${REPLICATOR_PASSWORD}
+    volumes:
+      - ./postgresql/replica/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./postgresql/replica/start-replica.sh:/start-replica.sh
+    command: sh /start-replica.sh
+    restart: unless-stopped

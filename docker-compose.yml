@@ -22,18 +22,18 @@ services:
       timeout: 5s
       retries: 5
 
-  postgres-replica:
-    image: docker.io/postgres:18-alpine
-    user: postgres
-    environment:
-      PGPASSWORD: ${REPLICATOR_PASSWORD}
-    volumes:
-      - ./postgresql/replica/postgresql.conf:/etc/postgresql/postgresql.conf
-      - ./postgresql/replica/start-replica.sh:/start-replica.sh
-    command: sh /start-replica.sh
-    restart: unless-stopped
-    deploy:
-      replicas: 2
+  postgres-replica-1:
+    extends:
+      file: docker-compose.postgres-replica.yml
+      service: postgres-replica-base
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+
+  postgres-replica-2:
+    extends:
+      file: docker-compose.postgres-replica.yml
+      service: postgres-replica-base
     depends_on:
       postgres-primary:
         condition: service_healthy
