@@ -12,16 +12,16 @@ router = APIRouter()
 
 
 @router.post("/", response_model=ShortUrlGetter,)
-def create_url_shortner(
+async def create_url_shortner(
         service: Annotated[ShortUrlService, Depends(get_short_url_service)],
         dto: ShortUrlCreate
 ) -> ShortUrlGetter:
-    return service.create(dto)
+    return await service.create(dto)
 
 
 @router.get("/{identifier}", response_model=ShortUrlGetter, response_model_exclude_none=True)
-def get_url_shortner(
+async def get_url_shortner(
         service: Annotated[ShortUrlService, Depends(get_short_url_service)],
         identifier: UUID,
 ) -> ShortUrlGetter:
-    return service.get(identifier)
+    return await service.get(identifier)

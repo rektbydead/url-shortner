@@ -1,16 +1,16 @@
-from typing import Any, Generator
+from typing import Any, AsyncGenerator
 
 from settings.session_local import SessionLocal
 
 
-def get_session() -> Generator[Any, Any, None]:
+async def get_session() -> AsyncGenerator[Any, Any]:
     session = SessionLocal()
 
     try:
         yield session
-        session.commit()
+        await session.commit()
     except Exception:
-        session.rollback()
+        await  session.rollback()
         raise
     finally:
-        session.close()
+        await  session.close()

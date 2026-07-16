@@ -24,7 +24,7 @@ class ShortUrlService:
     ):
         self.short_url_repository = short_url_repository
 
-    def create(self, dto: ShortUrlCreate) -> ShortUrlGetter:
+    async def create(self, dto: ShortUrlCreate) -> ShortUrlGetter:
         create_at = datetime.now(UTC)
         expires_at = create_at + timedelta(days=dto.duration)
 
@@ -35,7 +35,7 @@ class ShortUrlService:
             expires_at=expires_at,
         )
 
-        self.short_url_repository.create(entity)
+        await self.short_url_repository.create(entity)
 
         return ShortUrlGetter(
             uuid=entity.uuid,
@@ -44,8 +44,8 @@ class ShortUrlService:
         )
 
     @use_replica
-    def get(self, identifier: UUID) -> ShortUrlGetter:
-        short_url_getter = self.short_url_repository.get_by_uuid(identifier)
+    async def get(self, identifier: UUID) -> ShortUrlGetter:
+        short_url_getter = await self.short_url_repository.get_by_uuid(identifier)
 
         if short_url_getter is None:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Short url not found")
