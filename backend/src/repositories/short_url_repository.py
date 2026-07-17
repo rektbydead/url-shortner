@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, session
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, select
 
@@ -33,3 +33,19 @@ class ShortUrlRepository:
             uuid=row.uuid,
             original_url=row.original_url,
         )
+
+    async def get_random_rows(self, number_of_rows: int) -> list[ShortUrlGetter]:
+        statement = (select(ShortUrlEntity.uuid, ShortUrlEntity.original_url)
+                     .where(ShortUrlEntity.expires_at > func.now())
+                     .order_by(func.random())
+                     .limit(number_of_rows))
+
+        result = await self._session.execute(statement)
+
+        return [
+            ShortUrlGetter(
+                uuid=row.uuid,
+                original_url=row.original_url,
+            )
+            for row in result.all()
+        ]

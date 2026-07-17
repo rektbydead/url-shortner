@@ -25,3 +25,11 @@ async def get_url_shortner(
         identifier: UUID,
 ) -> ShortUrlGetter:
     return await service.get(identifier)
+
+@router.get("/random/{number_of_rows}", response_model=list[ShortUrlGetter], response_model_exclude_none=True)
+async def get_random_existing_url_shortner(
+        service: Annotated[ShortUrlService, Depends(get_short_url_service)],
+        number_of_rows: int,
+) -> list[ShortUrlGetter]:
+    return await service.get_random_short_urls(number_of_rows)
+
