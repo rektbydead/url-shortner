@@ -53,5 +53,5 @@ class ShortUrlService:
         return short_url_getter
 
     @use_replica
-    async def get_random_short_urls(self, number_of_rows: int) -> list[ShortUrlGetter]:
+    async def get_random_short_urls(self, number_of_rows: int) -> list[UUID]:
         return await self.short_url_repository.get_random_rows(number_of_rows)

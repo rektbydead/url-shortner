@@ -34,8 +34,8 @@ class ShortUrlRepository:
             original_url=row.original_url,
         )
 
-    async def get_random_rows(self, number_of_rows: int) -> list[ShortUrlGetter]:
-        statement = (select(ShortUrlEntity.uuid, ShortUrlEntity.original_url)
+    async def get_random_rows(self, number_of_rows: int) -> list[UUID]:
+        statement = (select(ShortUrlEntity.uuid)
                      .where(ShortUrlEntity.expires_at > func.now())
                      .order_by(func.random())
                      .limit(number_of_rows))
@@ -43,9 +43,6 @@ class ShortUrlRepository:
         result = await self._session.execute(statement)
 
         return [
-            ShortUrlGetter(
-                uuid=row.uuid,
-                original_url=row.original_url,
-            )
+            row.uuid
             for row in result.all()
         ]
