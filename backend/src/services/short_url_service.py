@@ -45,12 +45,15 @@ class ShortUrlService:
 
     @use_replica
     async def get(self, identifier: UUID) -> ShortUrlGetter:
-        short_url_getter = await self.short_url_repository.get_by_uuid(identifier)
+        short_url_entity = await self.short_url_repository.get_by_uuid(identifier)
 
-        if short_url_getter is None:
+        if short_url_entity is None:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Short url not found")
 
-        return short_url_getter
+        return ShortUrlGetter(
+            uuid=short_url_entity.uuid,
+            original_url=AnyHttpUrl(short_url_entity.original_url),
+        )
 
     @use_replica
     async def get_random_short_urls(self, number_of_rows: int) -> list[UUID]:
