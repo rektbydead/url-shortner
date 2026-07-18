@@ -1,8 +1,8 @@
 from functools import wraps
 from typing import TypeVar, Callable
 
-from dependencies.get_session import engine_type_context
 from enums.EngineType import EngineType
+from settings.routing_session import engine_type_context
 
 F = TypeVar('F', bound=Callable)
 
