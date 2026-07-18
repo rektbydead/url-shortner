@@ -30,7 +30,7 @@ class ShortUrlService:
 
         entity = ShortUrlEntity(
             uuid=uuid.uuid4(),
-            original_url=str(dto.original_url),
+            original_url=dto.original_url.encoded_string(),
             created_at=create_at,
             expires_at=expires_at,
         )
@@ -39,7 +39,7 @@ class ShortUrlService:
 
         return ShortUrlGetter(
             uuid=entity.uuid,
-            original_url=AnyHttpUrl(entity.original_url),
+            original_url=entity.original_url,
             expires_at=expires_at,
         )
 
@@ -52,7 +52,7 @@ class ShortUrlService:
 
         return ShortUrlGetter(
             uuid=short_url_entity.uuid,
-            original_url=AnyHttpUrl(short_url_entity.original_url),
+            original_url=short_url_entity.original_url,
         )
 
     @use_replica

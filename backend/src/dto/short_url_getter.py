@@ -7,6 +7,6 @@ from settings.app_base_model import AppBaseModel
 
 
 class ShortUrlGetter(AppBaseModel):
-    original_url: AnyHttpUrl
+    original_url: str
     uuid: UUID
     expires_at: datetime | None = None
