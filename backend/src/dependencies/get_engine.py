@@ -1,7 +1,7 @@
 from functools import lru_cache
 from itertools import cycle
 
-from sqlalchemy.engine import Engine, create_engine
+from sqlalchemy.ext.asyncio.engine import AsyncEngine, create_async_engine
 
 from enums.EngineType import EngineType
 from settings.settings import Settings
@@ -13,16 +13,16 @@ _read_url_cycle = cycle(_settings.READ_DATABASE_URLS)
 @lru_cache()
 def _create_engine(
         url: str,
-) -> Engine:
-    return create_engine(
+) -> AsyncEngine:
+    return create_async_engine(
         url,
-        pool_size=5,  # Default 10 connections
-        max_overflow=10,  # Optional connection on traffic spike
-        pool_timeout=30,  # Maximum time waiting for resource
+        pool_size=5,        # Default 10 connections
+        max_overflow=10,    # Optional connection on traffic spike
+        pool_timeout=30,    # Maximum time waiting for resource
     )
 
 
-def get_engine(engine_type: EngineType = EngineType.WRITE) -> Engine:
+def get_engine(engine_type: EngineType = EngineType.WRITE) -> AsyncEngine:
     if engine_type == EngineType.WRITE:
         return _create_engine(_settings.WRITE_DATABASE_URL)
 
