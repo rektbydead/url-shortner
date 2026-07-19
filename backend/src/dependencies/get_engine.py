@@ -23,9 +23,8 @@ def _create_engine(
 
 
 def get_engine(engine_type: EngineType = EngineType.WRITE) -> AsyncEngine:
-    url = next(_read_url_cycle)
-
     if engine_type == EngineType.WRITE:
         return _create_engine(_settings.WRITE_DATABASE_URL)
 
+    url = next(_read_url_cycle)
     return _create_engine(url)
