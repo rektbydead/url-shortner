@@ -24,30 +24,37 @@ class ShortUrlService:
     ):
         self.short_url_repository = short_url_repository
 
-    def create(self, dto: ShortUrlCreate) -> ShortUrlGetter:
+    async def create(self, dto: ShortUrlCreate) -> ShortUrlGetter:
         create_at = datetime.now(UTC)
         expires_at = create_at + timedelta(days=dto.duration)
 
         entity = ShortUrlEntity(
             uuid=uuid.uuid4(),
-            original_url=str(dto.original_url),
+            original_url=dto.original_url.encoded_string(),
             created_at=create_at,
             expires_at=expires_at,
         )
 
-        self.short_url_repository.create(entity)
+        await self.short_url_repository.create(entity)
 
         return ShortUrlGetter(
             uuid=entity.uuid,
-            original_url=AnyHttpUrl(entity.original_url),
+            original_url=entity.original_url,
             expires_at=expires_at,
         )
 
     @use_replica
-    def get(self, identifier: UUID) -> ShortUrlGetter:
-        short_url_getter = self.short_url_repository.get_by_uuid(identifier)
+    async def get(self, identifier: UUID) -> ShortUrlGetter:
+        short_url_entity = await self.short_url_repository.get_by_uuid(identifier)
 
-        if short_url_getter is None:
+        if short_url_entity is None:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Short url not found")
 
-        return short_url_getter
+        return ShortUrlGetter(
+            uuid=short_url_entity.uuid,
+            original_url=short_url_entity.original_url,
+        )
+
+    @use_replica
+    async def get_random_short_urls(self, number_of_rows: int) -> list[UUID]:
+        return await self.short_url_repository.get_random_rows(number_of_rows)

@@ -1,8 +1,8 @@
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from settings.routing_session import RoutingSession
+from settings.async_routing_session import AsyncRoutingSession
 
-SessionLocal = sessionmaker(
-    class_=RoutingSession,
+SessionLocal = async_sessionmaker(
+    class_=AsyncRoutingSession,
     expire_on_commit=False,
 )
