@@ -16,8 +16,8 @@ def _create_engine(
 ) -> AsyncEngine:
     return create_async_engine(
         url,
-        pool_size=5,        # Default 10 connections
-        max_overflow=10,    # Optional connection on traffic spike
+        pool_size=10,        # Default 10 connections
+        max_overflow=15,    # Optional connection on traffic spike
         pool_timeout=30,    # Maximum time waiting for resource
     )
 
