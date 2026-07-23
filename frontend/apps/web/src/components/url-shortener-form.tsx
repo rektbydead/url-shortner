@@ -1,8 +1,8 @@
-import { Controller, useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { ArrowRight, Loader2, RotateCcw, XCircle } from "lucide-react"
+import {Controller, useForm} from "react-hook-form"
+import {zodResolver} from "@hookform/resolvers/zod"
+import {ArrowRight, Loader2, RotateCcw, XCircle} from "lucide-react"
 
-import { Input } from "@workspace/ui/components/input"
+import {Input} from "@workspace/ui/components/input"
 import {
   Select,
   SelectContent,
@@ -13,33 +13,43 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select"
 
-import { DEFAULT_EXPIRATION } from "@/constants/default-expiration-option.ts"
-import { EXPIRATION_OPTIONS } from "@/constants/expiration-options.ts"
-import {
-  ShortenUrlSchema,
-  type ShortenUrlSchemaType,
-} from "@/schemas/shorten-url-schema.tsx"
+import {DEFAULT_EXPIRATION} from "@/constants/default-expiration-option.ts"
+import {EXPIRATION_OPTIONS} from "@/constants/expiration-options.ts"
+import {ShortenUrlSchema, type ShortenUrlSchemaType,} from "@/schemas/shorten-url-schema.tsx"
 
-import { Button } from "@workspace/ui/components/button"
-import { UrlResultCard } from "@/components/url-result-card/url-result-card.tsx"
-import { UrlResultCardItem } from "@/components/url-result-card/url-result-card-item.tsx"
-import { useShortenUrlHook } from "@/hooks/use-shorten-url-hook.ts"
-import type { ShortenUrlResponseType } from "@/schemas/dto/shorten-url-response-schema.tsx"
+import {Button} from "@workspace/ui/components/button"
+import {UrlResultCard} from "@/components/url-result-card/url-result-card.tsx"
+import {UrlResultCardItem} from "@/components/url-result-card/url-result-card-item.tsx"
+import {useShortenUrlHook} from "@/hooks/use-shorten-url-hook.ts"
+import type {ShortenUrlResponseType} from "@/schemas/dto/shorten-url-response-schema.tsx"
+import {useCallback, useState} from "react";
+import {cn} from "@workspace/ui/lib/utils";
 
 export function UrlShortenerForm() {
-  const { result, isLoading, createShortenUrl } = useShortenUrlHook<ShortenUrlResponseType>()
+  const {result, isLoading, createShortenUrl} = useShortenUrlHook<ShortenUrlResponseType>()
+  const [isClearing, setIsClearing] = useState(false)
 
   const {
     control,
     register,
     handleSubmit,
-    formState: { errors },
+    resetField,
+    formState: {errors},
   } = useForm<ShortenUrlSchemaType>({
     resolver: zodResolver(ShortenUrlSchema),
-    defaultValues: { original_url: "", duration: DEFAULT_EXPIRATION },
+    defaultValues: {original_url: "", duration: DEFAULT_EXPIRATION},
   })
 
   const hasError = !!errors.original_url
+
+  const handleClear = useCallback(() => {
+    setIsClearing(true)
+
+    setTimeout(() => {
+      resetField("original_url", {defaultValue: ""})
+      setIsClearing(false)
+    }, 150)
+  }, [resetField])
 
   return (
     <>
@@ -58,8 +68,14 @@ export function UrlShortenerForm() {
             {...register("original_url")}
           />
 
-          {hasError && (
-            <XCircle className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-destructive" />
+          {(hasError || isClearing) && (
+            <XCircle
+              onClick={handleClear}
+              className={cn(
+                "absolute top-1/2 right-3 size-4 -translate-y-1/2 text-destructive cursor-pointer transition-all duration-150 ease-in",
+                isClearing && "scale-50 opacity-0 rotate-90"
+              )}
+            />
           )}
         </div>
 
@@ -67,14 +83,14 @@ export function UrlShortenerForm() {
           <Controller
             name="duration"
             control={control}
-            render={({ field }) => (
+            render={({field}) => (
               <Select
                 items={EXPIRATION_OPTIONS}
                 value={field.value}
                 onValueChange={field.onChange}
               >
                 <SelectTrigger className="w-full max-w-48 text-sm cursor-pointer">
-                  <SelectValue />
+                  <SelectValue/>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -92,9 +108,9 @@ export function UrlShortenerForm() {
 
           <Button type="submit" disabled={isLoading} className="h-auto! cursor-pointer max-[600px]:flex-1">
             {isLoading ? (
-              <Loader2 className="size-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin"/>
             ) : (
-              <ArrowRight className="size-4" />
+              <ArrowRight className="size-4"/>
             )}
             Shorten
           </Button>
@@ -115,7 +131,7 @@ export function UrlShortenerForm() {
                 }
                 className="h-7 gap-1.5 text-xs text-muted-foreground cursor-pointer"
               >
-                <RotateCcw className="size-3" />
+                <RotateCcw className="size-3"/>
                 Reshorten URL
               </Button>
             </div>
@@ -131,7 +147,7 @@ export function UrlShortenerForm() {
 
       {result && (
         <UrlResultCard>
-          <UrlResultCardItem result={result} />
+          <UrlResultCardItem result={result}/>
         </UrlResultCard>
       )}
     </>
