@@ -60,7 +60,6 @@ export function UrlShortenerForm() {
         <div className="relative">
           <Input
             id="original_url"
-            type="url"
             aria-label="Paste your long URL here..."
             placeholder="Paste your long URL here..."
             autoFocus
