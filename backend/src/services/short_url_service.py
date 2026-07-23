@@ -53,6 +53,7 @@ class ShortUrlService:
         return ShortUrlGetter(
             uuid=short_url_entity.uuid,
             original_url=short_url_entity.original_url,
+            expires_at=short_url_entity.expires_at,
         )
 
     @use_replica
@@ -63,6 +64,7 @@ class ShortUrlService:
             ShortUrlGetter(
                 uuid=entity.uuid,
                 original_url=entity.original_url,
+                expires_at=entity.expires_at,
             )
             for entity in entities
         ]
