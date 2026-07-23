@@ -23,15 +23,11 @@ class ShortUrlRepository:
         result = await self._session.execute(statement)
         return result.scalar_one_or_none()
 
-    async def get_random_rows(self, number_of_rows: int) -> list[UUID]:
-        statement = (select(ShortUrlEntity.uuid)
+    async def get_random_rows(self, number_of_rows: int) -> list[ShortUrlEntity]:
+        statement = (select(ShortUrlEntity)
                      .where(ShortUrlEntity.expires_at > func.now())
                      .order_by(func.random())
                      .limit(number_of_rows))
 
         result = await self._session.execute(statement)
-
-        return [
-            row.uuid
-            for row in result.all()
-        ]
+        return list(result.scalars().all())
