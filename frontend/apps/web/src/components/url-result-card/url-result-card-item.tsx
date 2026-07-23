@@ -66,8 +66,8 @@ export function UrlResultCardItem({ result }: UrlResultCardItemContextType) {
         </Tooltip>
 
         <Tooltip>
-          <TooltipTrigger render={
-            <Button variant="ghost" size="sm" onClick={handleCopy}>
+          <TooltipTrigger style={{ borderColor: "var(--border)" }} render={
+            <Button className="cursor-pointer" variant="ghost" size="sm" onClick={handleCopy}>
               {copied ? (
                 <Check className="size-3.5" />
               ) : (

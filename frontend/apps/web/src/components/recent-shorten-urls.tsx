@@ -49,6 +49,7 @@ export function RecentShortenedUrls() {
           size="sm"
           onClick={getRandomShortenUrlWithDelay}
           disabled={isLoading}
+          className="cursor-pointer"
         >
           <RotateCcw className={cn("size-3.5", isLoading && "animate-spin")} />
           Refresh

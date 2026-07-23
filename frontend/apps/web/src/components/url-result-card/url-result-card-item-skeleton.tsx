@@ -6,7 +6,6 @@ export function UrlResultCardItemSkeleton() {
       <div className="min-w-0 flex-1">
         <div className="flex flex-row items-center gap-2">
           <Skeleton className="h-4 w-2/5 rounded-sm" />
-          <Skeleton className="size-1.5 rounded-full" />
         </div>
         <Skeleton className="mt-0.5 h-2.5 w-3/5 rounded-sm" />
       </div>

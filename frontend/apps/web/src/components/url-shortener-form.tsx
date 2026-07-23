@@ -33,16 +33,11 @@ export function UrlShortenerForm() {
     control,
     register,
     handleSubmit,
-    reset: resetForm,
     formState: { errors },
   } = useForm<ShortenUrlSchemaType>({
     resolver: zodResolver(ShortenUrlSchema),
     defaultValues: { original_url: "", duration: DEFAULT_EXPIRATION },
   })
-
-  const handleReset = () => {
-    resetForm({ original_url: "", duration: DEFAULT_EXPIRATION })
-  }
 
   const hasError = !!errors.original_url
 
@@ -78,14 +73,14 @@ export function UrlShortenerForm() {
                 value={field.value}
                 onValueChange={field.onChange}
               >
-                <SelectTrigger className="w-full max-w-48 text-sm">
+                <SelectTrigger className="w-full max-w-48 text-sm cursor-pointer">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel> Expires after </SelectLabel>
                     {EXPIRATION_OPTIONS.map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
+                      <SelectItem className="cursor-pointer" key={item.value} value={item.value}>
                         {item.label}
                       </SelectItem>
                     ))}
@@ -95,7 +90,7 @@ export function UrlShortenerForm() {
             )}
           />
 
-          <Button type="submit" disabled={isLoading} className="h-auto!">
+          <Button type="submit" disabled={isLoading} className="h-auto! cursor-pointer">
             {isLoading ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
@@ -118,7 +113,7 @@ export function UrlShortenerForm() {
                     })
                   )()
                 }
-                className="h-7 gap-1.5 text-xs text-muted-foreground"
+                className="h-7 gap-1.5 text-xs text-muted-foreground cursor-pointer"
               >
                 <RotateCcw className="size-3" />
                 Reshorten URL
