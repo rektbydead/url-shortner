@@ -1,10 +1,8 @@
 import { Link2, Moon, Sun } from "lucide-react"
 import { useTheme } from "@/components/theme-provider"
-import {
-  GitHubIcon,
-  LinkedInIcon,
-  SocialLink,
-} from "@/components/icons/social-icons.tsx"
+import {SocialLink} from "@/components/icons/social-link.tsx";
+import {GitHubIcon} from "@/components/icons/github-icon.tsx";
+import {LinkedInIcon} from "@/components/icons/linkedin-icon.tsx";
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme()
@@ -46,10 +44,10 @@ export function Header() {
         </a>
 
         <div className="flex items-center gap-0.5">
-          <SocialLink href="https://github.com" label="GitHub">
+          <SocialLink href="https://github.com/rektbydead/url-shortner" label="GitHub">
             <GitHubIcon className="size-[18px]" />
           </SocialLink>
-          <SocialLink href="https://linkedin.com" label="LinkedIn">
+          <SocialLink href="https://www.linkedin.com/in/rubenlousada/" label="LinkedIn">
             <LinkedInIcon className="size-[18px]" />
           </SocialLink>
           <div className="mx-1 h-4 w-px bg-border" />
