@@ -90,7 +90,7 @@ export function UrlShortenerForm() {
             )}
           />
 
-          <Button type="submit" disabled={isLoading} className="h-auto! cursor-pointer">
+          <Button type="submit" disabled={isLoading} className="h-auto! cursor-pointer max-[600px]:flex-1">
             {isLoading ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (

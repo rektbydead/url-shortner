@@ -12,7 +12,7 @@ export default function App() {
         <Header />
 
         <main>
-          <section className="mx-auto my-32 max-w-lg">
+          <section className="mx-auto my-32 max-w-lg max-[600px]:px-4">
             <div className="space-y-0">
               <div className="-space-y-1">
                 <p className="text-xs font-medium tracking-widest text-primary uppercase">
