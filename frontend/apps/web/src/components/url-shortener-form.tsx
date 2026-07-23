@@ -34,10 +34,12 @@ export function UrlShortenerForm() {
     register,
     handleSubmit,
     resetField,
-    formState: {errors},
+    getValues,
+    formState: {errors, isValid},
   } = useForm<ShortenUrlSchemaType>({
     resolver: zodResolver(ShortenUrlSchema),
     defaultValues: {original_url: "", duration: DEFAULT_EXPIRATION},
+    mode: "onChange",
   })
 
   const hasError = !!errors.original_url
@@ -105,7 +107,7 @@ export function UrlShortenerForm() {
             )}
           />
 
-          <Button type="submit" disabled={isLoading} className="h-auto! cursor-pointer max-[600px]:flex-1">
+          <Button type="submit" disabled={isLoading || !isValid} className="h-auto! cursor-pointer max-[600px]:flex-1">
             {isLoading ? (
               <Loader2 className="size-4 animate-spin"/>
             ) : (
@@ -121,12 +123,10 @@ export function UrlShortenerForm() {
                 variant="ghost"
                 size="sm"
                 onClick={() =>
-                  handleSubmit((data) =>
-                    createShortenUrl({
-                      original_url: result.original_url,
-                      duration: data.duration,
-                    })
-                  )()
+                  createShortenUrl({
+                    original_url: result.original_url,
+                    duration: getValues("duration"),
+                  })
                 }
                 className="h-7 gap-1.5 text-xs text-muted-foreground cursor-pointer"
               >
