@@ -1,15 +1,15 @@
-import { UrlResultCardItem } from "@/components/url-result-card/url-result-card-item.tsx"
-import { UrlResultCard } from "@/components/url-result-card/url-result-card.tsx"
-import type { ShortenUrlResponseType } from "@/schemas/dto/shorten-url-response-schema.tsx"
-import { useShortenUrlHook } from "@/hooks/use-shorten-url-hook.ts"
+import {UrlResultCardItem} from "@/components/url-result-card/url-result-card-item.tsx"
+import {UrlResultCard} from "@/components/url-result-card/url-result-card.tsx"
+import type {ShortenUrlResponseType} from "@/schemas/dto/shorten-url-response-schema.tsx"
+import {useShortenUrlHook} from "@/hooks/use-shorten-url-hook.ts"
 import {useCallback, useEffect, useState} from "react"
-import { Button } from "@workspace/ui/components/button"
-import { Skeleton } from "@workspace/ui/components/skeleton"
-import { RotateCcw } from "lucide-react"
-import { cn } from "@workspace/ui/lib/utils"
+import {Button} from "@workspace/ui/components/button"
+import {RotateCcw} from "lucide-react"
+import {cn} from "@workspace/ui/lib/utils"
+import {UrlResultCardItemSkeleton} from "@/components/url-result-card/url-result-card-item-skeleton.tsx";
 
 export function RecentShortenedUrls() {
-  const { result, isLoading, getRandomShortenUrl } =
+  const {result, isLoading, getRandomShortenUrl} =
     useShortenUrlHook<ShortenUrlResponseType[]>()
 
   const [showSkeleton, setShowSkeleton] = useState(true)
@@ -57,15 +57,12 @@ export function RecentShortenedUrls() {
 
       <UrlResultCard>
         {showSkeleton
-          ? Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="space-y-2 px-1 py-1.5">
-                <Skeleton className="h-4 w-1/3 rounded-sm" />
-                <Skeleton className="h-3 w-2/3 rounded-sm" />
-              </div>
-            ))
+          ? Array.from({length: 10}).map((_, i) => (
+            <UrlResultCardItemSkeleton key={i}/>
+          ))
           : result?.map((item) => (
-              <UrlResultCardItem result={item} key={item.uuid} />
-            ))}
+            <UrlResultCardItem result={item} key={item.uuid}/>
+          ))}
       </UrlResultCard>
     </div>
   )

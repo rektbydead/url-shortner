@@ -57,11 +57,11 @@ export function UrlResultCardItem({ result }: UrlResultCardItemContextType) {
 
       <div className="flex shrink-0 items-center gap-2.5">
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger render={
             <Badge variant="secondary" className="text-[0.6rem] font-normal">
               {expireDate}
             </Badge>
-          </TooltipTrigger>
+          }/>
           <TooltipContent>Expire date</TooltipContent>
         </Tooltip>
 
