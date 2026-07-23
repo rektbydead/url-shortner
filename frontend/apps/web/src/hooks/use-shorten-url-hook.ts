@@ -13,7 +13,7 @@ export function useShortenUrlHook<T>() {
     setIsLoading(true)
 
     return UrlShortenService.list(numberOfShortenUrls)
-      .then((data) => setResult(data))
+      .then((data) => setResult(data as T))
       .catch((error) => setError(error))
       .finally(() => setIsLoading(false))
   }, [])
@@ -26,7 +26,7 @@ export function useShortenUrlHook<T>() {
       original_url: payload.original_url,
       duration: payload.duration,
     })
-      .then((data) => setResult(data))
+      .then((data) => setResult(data as T))
       .catch((error) => setError(error))
       .finally(() => setIsLoading(false))
   }, [])
