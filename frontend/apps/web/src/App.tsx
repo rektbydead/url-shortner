@@ -25,7 +25,7 @@ export default function App() {
               </div>
 
               <p className="pt-1 text-sm text-muted-foreground">
-                Paste a long URL, get a not so short one, because it uses UUID's :(
+                Paste a long URL -&gt; get a not so short one -&gt; UUID cries :(
               </p>
             </div>
 

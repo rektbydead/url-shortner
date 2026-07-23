@@ -8,7 +8,7 @@ export function Footer() {
             <span className="text-sm font-semibold tracking-tight text-foreground">
               Lousada's
             </span>
-            <span className="hidden text-xs text-muted-foreground sm:inline">
+            <span className="text-xs text-muted-foreground sm:inline">
               URL Shortener
             </span>
           </span>
