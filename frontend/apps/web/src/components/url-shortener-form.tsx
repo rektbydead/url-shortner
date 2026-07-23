@@ -143,13 +143,13 @@ export function UrlShortenerForm() {
             {errors.original_url?.message}
           </p>
         )}
-      </form>
 
-      {result && (
-        <UrlResultCard>
-          <UrlResultCardItem result={result}/>
-        </UrlResultCard>
-      )}
+        {result && (
+          <UrlResultCard>
+            <UrlResultCardItem result={result}/>
+          </UrlResultCard>
+        )}
+      </form>
     </>
   )
 }
