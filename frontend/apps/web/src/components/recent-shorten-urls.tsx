@@ -6,6 +6,7 @@ import {Button} from "@workspace/ui/components/button"
 import {RotateCcw} from "lucide-react"
 import {cn} from "@workspace/ui/lib/utils"
 import {UrlResultCardItemSkeleton} from "@/components/url-result-card/url-result-card-item-skeleton.tsx";
+import type { ShortenUrlResponseType } from "@/schemas/dto/shorten-url-response-schema.ts"
 
 export function RecentShortenedUrls() {
   const {result, isLoading, getRandomShortenUrl} =
