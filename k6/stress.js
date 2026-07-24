@@ -11,7 +11,8 @@ export const options = {
     ]
 }
 
-const BASE_URL = "http://backend:8000/shortner"
+const TRAEFIK_URL = "http://traefik:80"
+const BASE_URL = `${TRAEFIK_URL}/api/shortner`
 const uuidList = []
 
 function createShortUrl() {
@@ -45,11 +46,23 @@ function search() {
     })
 }
 
+function testFrontend() {
+    const res = http.get(`${TRAEFIK_URL}/`)
+
+    check(res, {
+        "frontend 200": (r) => r.status === 200,
+    })
+}
+
 export default function () {
-    if (Math.random() < 0.1) {
+    const r = Math.random()
+
+    if (r < 0.05) {
+        testFrontend()
+    } else if (r < 0.15) {
         createShortUrl()
     } else {
-         search()
+        search()
     }
 
     sleep(1)
