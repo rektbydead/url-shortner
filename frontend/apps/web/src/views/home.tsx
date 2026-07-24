@@ -1,11 +1,10 @@
-import { TooltipProvider } from "@workspace/ui/components/tooltip"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
 import { UrlShortenerForm } from "@/components/url-shortener-form"
 import { RecentShortenedUrls } from "@/components/recent-shorten-urls.tsx"
+import { TooltipProvider } from "@workspace/ui/components/tooltip.tsx"
+import { Header } from "@/components/header.tsx"
+import { Footer } from "@/components/footer.tsx"
 
-export default function App() {
-
+export default function Home() {
   return (
     <TooltipProvider>
       <div className="flex min-h-screen flex-col bg-background">
@@ -25,7 +24,8 @@ export default function App() {
               </div>
 
               <p className="pt-1 text-sm text-muted-foreground">
-                Paste a long URL -&gt; get a not so short one -&gt; UUID cries :(
+                Paste a long URL -&gt; get a not so short one -&gt; UUID cries
+                :(
               </p>
             </div>
 
