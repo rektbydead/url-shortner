@@ -44,8 +44,12 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./backend/.env
-    ports:
-      - "8000:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.middlewares=strip-api"
+      - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/api"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
     depends_on:
       postgres-primary:
         condition: service_healthy
@@ -56,14 +60,43 @@ services:
       timeout: 3s
       retries: 10
 
-  k6:
-    image: docker.io/grafana/k6:latest
-    volumes:
-      - ./k6:/scripts
-    command: run /scripts/stress.js
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        - VITE_APP_AXIOS_BASE_URL=http://localhost
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
     depends_on:
       backend:
         condition: service_healthy
+    restart: unless-stopped
+
+  traefik:
+    image: docker.io/traefik:v3.7.8
+    command: --configFile=/etc/traefik/traefik.yml
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+    depends_on:
+      frontend:
+        condition: service_started
+    restart: unless-stopped
+
+  # k6:
+  #   image: docker.io/grafana/k6:latest
+  #   volumes:
+  #     - ./k6:/scripts
+  #   command: run /scripts/stress.js
+  #   depends_on:
+  #     backend:
+  #       condition: service_healthy
 
 volumes:
   primary_postgres_data:
