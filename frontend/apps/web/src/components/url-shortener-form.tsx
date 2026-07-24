@@ -15,7 +15,6 @@ import {
 
 import {DEFAULT_EXPIRATION} from "@/constants/default-expiration-option.ts"
 import {EXPIRATION_OPTIONS} from "@/constants/expiration-options.ts"
-import {ShortenUrlSchema, type ShortenUrlSchemaType,} from "@/schemas/shorten-url-schema.tsx"
 
 import {Button} from "@workspace/ui/components/button"
 import {UrlResultCard} from "@/components/url-result-card/url-result-card.tsx"
@@ -24,6 +23,10 @@ import {useShortenUrlHook} from "@/hooks/use-shorten-url-hook.ts"
 import type {ShortenUrlResponseType} from "@/schemas/dto/shorten-url-response-schema.tsx"
 import {useCallback, useState} from "react";
 import {cn} from "@workspace/ui/lib/utils";
+import {
+  ShortenUrlSchema,
+  type ShortenUrlSchemaType,
+} from "@/schemas/shorten-url-schema.ts"
 
 export function UrlShortenerForm() {
   const {result, isLoading, createShortenUrl} = useShortenUrlHook<ShortenUrlResponseType>()

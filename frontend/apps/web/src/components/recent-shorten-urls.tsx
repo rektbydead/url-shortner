@@ -1,6 +1,5 @@
 import {UrlResultCardItem} from "@/components/url-result-card/url-result-card-item.tsx"
 import {UrlResultCard} from "@/components/url-result-card/url-result-card.tsx"
-import type {ShortenUrlResponseType} from "@/schemas/dto/shorten-url-response-schema.tsx"
 import {useShortenUrlHook} from "@/hooks/use-shorten-url-hook.ts"
 import {useCallback, useEffect, useState} from "react"
 import {Button} from "@workspace/ui/components/button"

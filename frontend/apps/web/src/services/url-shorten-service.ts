@@ -1,6 +1,6 @@
-import { type ShortenUrlRequestType } from "@/schemas/dto/shorten-url-request-schema.tsx"
 import { api } from "@/lib/api.ts"
 import type { ShortenUrlResponseType } from "@/schemas/dto/shorten-url-response-schema.tsx"
+import type { ShortenUrlRequestType } from "@/schemas/dto/shorten-url-request-schema.ts"
 
 export class UrlShortenService {
   private static readonly BASE_URL = "shortner"

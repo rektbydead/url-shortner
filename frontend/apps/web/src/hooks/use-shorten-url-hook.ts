@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react"
 import { UrlShortenService } from "@/services/url-shorten-service.ts"
 import type { ApiErrorSchemaType } from "@/schemas/dto/api-error-schema.ts"
-import type { ShortenUrlRequestType } from "@/schemas/dto/shorten-url-request-schema.tsx"
+import type { ShortenUrlRequestType } from "@/schemas/dto/shorten-url-request-schema.ts"
 
 export function useShortenUrlHook<T>() {
   const [result, setResult] = useState<T | null>(null)
