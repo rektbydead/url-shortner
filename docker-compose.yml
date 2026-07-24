@@ -46,6 +46,7 @@ services:
       - ./backend/.env
     labels:
       - "traefik.enable=true"
+      - "traefik.http.middlewares.compress.compress=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
       - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/api"
       - "traefik.http.routers.backend.middlewares=strip-api,compress"
@@ -64,10 +65,9 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
-      args:
-        - VITE_APP_AXIOS_BASE_URL=http://localhost
     labels:
       - "traefik.enable=true"
+      - "traefik.http.middlewares.compress.compress=true"
       - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
       - "traefik.http.routers.backend.middlewares=compress"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
