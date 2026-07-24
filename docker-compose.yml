@@ -98,7 +98,6 @@ services:
     image: docker.io/grafana/k6:latest
     volumes:
       - ./k6:/scripts
-    command: run /scripts/stress.js
     depends_on:
       traefik:
         condition: service_healthy
