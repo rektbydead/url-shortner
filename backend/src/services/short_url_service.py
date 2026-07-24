@@ -53,8 +53,18 @@ class ShortUrlService:
         return ShortUrlGetter(
             uuid=short_url_entity.uuid,
             original_url=short_url_entity.original_url,
+            expires_at=short_url_entity.expires_at,
         )
 
     @use_replica
-    async def get_random_short_urls(self, number_of_rows: int) -> list[UUID]:
-        return await self.short_url_repository.get_random_rows(number_of_rows)
+    async def get_random_short_urls(self, number_of_rows: int) -> list[ShortUrlGetter]:
+        entities = await self.short_url_repository.get_random_rows(number_of_rows)
+
+        return [
+            ShortUrlGetter(
+                uuid=entity.uuid,
+                original_url=entity.original_url,
+                expires_at=entity.expires_at,
+            )
+            for entity in entities
+        ]
