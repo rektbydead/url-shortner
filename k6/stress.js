@@ -1,69 +1,40 @@
-import http from "k6/http"
-import {check, sleep} from "k6"
+import { check, sleep } from "k6"
+import { setup, createShortUrl, readShortUrl, hitFrontend, randomUuid } from "./helpers.js"
+
+export { setup }
 
 export const options = {
     stages: [
-        // {duration: "30s", target: 500},
-        {duration: "1m", target: 30000},
-        // {duration: "2m", target: 1500},
-        // {duration: "30s", target: 750},
-        // {duration: "30s", target: 250},
-    ]
+        { duration: "1m", target: 200 },
+        { duration: "1m", target: 500 },
+        { duration: "1m", target: 1000 },
+        { duration: "1m", target: 2000 },
+        { duration: "1m", target: 3000 },
+        { duration: "1m", target: 5000 },
+        { duration: "1m", target: 10000 },
+        { duration: "1m", target: 15000 },
+        { duration: "1m", target: 20000 },
+        { duration: "1m", target: 30000 },
+    ],
+    thresholds: {
+        http_req_duration: ["p(95)<2000"],
+        http_req_failed: ["rate<0.10"],
+    },
 }
 
-const TRAEFIK_URL = "http://traefik:80"
-const BASE_URL = `${TRAEFIK_URL}/api/shortner`
-const uuidList = []
+// Stress test - finds the breaking point by increasing VUs per minute.
+// Go from 200 to 5000 VUs over 6 minutes (1 minute per stage).
+// The breaking point is reached when p95 latency spikes or errors appear.
+export default function (data) {
+    const random = Math.random()
 
-function createShortUrl() {
-    const res = http.post(
-        `${BASE_URL}/`,
-        JSON.stringify({
-            original_url: "https://example.com/",
-            duration: 60,
-        }),
-        {
-            headers: {
-                "Content-Type": "application/json",
-            },
-        }
-    )
-
-    if (res.status === 200) {
-        const body = res.json()
-        uuidList.push(body.uuid)
-    }
-}
-
-function search() {
-    const uuid = uuidList[Math.floor(Math.random() * uuidList.length)]
-    if (uuid === undefined) return
-
-    const res = http.get(`${BASE_URL}/${uuid}`)
-
-    check(res, {
-        "GET 200": (r) => r.status === 200,
-    })
-}
-
-function testFrontend() {
-    const res = http.get(`${TRAEFIK_URL}/`)
-
-    check(res, {
-        "frontend 200": (r) => r.status === 200,
-    })
-}
-
-export default function () {
-    const r = Math.random()
-
-    if (r < 0.05) {
-        testFrontend()
-    } else if (r < 0.15) {
-        createShortUrl()
-    } else {
-        search()
+    if (random < 0.20) {
+        return createShortUrl()
     }
 
-    sleep(1)
+    const uuid = randomUuid(data.uuids)
+    if (uuid) {
+        const res = readShortUrl(uuid)
+        check(res, { "GET 200": (r) => r.status === 200 })
+    }
 }
