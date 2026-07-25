@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from starlette.middleware.cors import CORSMiddleware
 
 from dependencies.get_engine import get_engine
-from routers import url_shortner_router, health_check
+from routers import url_shortner_router, health_check, metrics
 
 
 def create_db_and_tables(engine: AsyncEngine):
@@ -38,3 +38,4 @@ app.add_middleware(
 
 app.include_router(health_check.router, prefix="/health", tags=["health-check"])
 app.include_router(url_shortner_router.router, prefix="/shortner", tags=["urls"])
+app.include_router(metrics.router, prefix="/metrics", tags=["metrics"])
