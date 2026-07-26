@@ -1,14 +1,30 @@
-from fastapi import APIRouter, Request, Response, HTTPException
-from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, CollectorRegistry, multiprocess
+from typing import Annotated
+
+from fastapi import APIRouter, Response, Depends
+from prometheus_client import CONTENT_TYPE_LATEST
+from starlette.responses import StreamingResponse
+
+from dependencies.get_prometheus_service import get_prometheus_service
+from services.prometheus_service import PrometheusService
 
 router = APIRouter()
 
 
 @router.get("/")
-def metrics(request: Request):
-    if request.client.host not in ("prometheus", "localhost", "127.0.0.1"):
-        raise HTTPException(status_code=403)
+async def metrics(
+        service: Annotated[PrometheusService, Depends(get_prometheus_service)],
+):
+    return Response(service.get_metrics(), media_type=CONTENT_TYPE_LATEST)
 
-    registry = CollectorRegistry()
-    multiprocess.MultiProcessCollector(registry)
-    return Response(generate_latest(registry), media_type=CONTENT_TYPE_LATEST)
+
+@router.get("/stream")
+async def stream_metrics(
+        service: Annotated[PrometheusService, Depends(get_prometheus_service)],
+):
+    return StreamingResponse(
+        service.get_metrics_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+        }
+    )
