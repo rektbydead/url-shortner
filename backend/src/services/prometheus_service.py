@@ -25,7 +25,8 @@ class PrometheusService:
                     params={"query": query}
                 )
                 data = r.json()["data"]["result"]
-                results[name] = data[0]["value"][1] if data else None
+                raw = data[0]["value"][1] if data else None
+                results[name] = float(raw) if raw is not None else None
             return results
 
     def get_metrics(self):
@@ -36,5 +37,5 @@ class PrometheusService:
     async def get_metrics_stream(self):
         while True:
             data = await self._fetch_all_metrics()
-            yield f"{json.dumps(data)}\n\n"
+            yield f"data: {json.dumps(data)}\n\n"
             await asyncio.sleep(5)
