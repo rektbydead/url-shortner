@@ -19,14 +19,16 @@ class PrometheusService:
     async def _fetch_all_metrics(self):
         async with httpx.AsyncClient() as client:
             results = {}
+
             for name, query in self.QUERIES.items():
                 r = await client.get(
                     f"{self.PROMETHEUS_URL}/api/v1/query",
                     params={"query": query}
                 )
+
                 data = r.json()["data"]["result"]
-                raw = data[0]["value"][1] if data else None
-                results[name] = float(raw) if raw is not None else None
+                results[name] = data[0]["value"][1] if data else None
+
             return results
 
     def get_metrics(self):
