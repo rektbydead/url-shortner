@@ -103,14 +103,15 @@ services:
     environment:
       - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_USERS_ALLOW_SIGN_UP=false
     labels:
       - "traefik.enable=true"
       - "traefik.http.middlewares.compress.compress=true"
       - "traefik.http.routers.grafana.middlewares=compress"
       - "traefik.http.routers.grafana.rule=PathPrefix(`/grafana/`)"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
-    expose:
-      - 3000
+    restart: unless-stopped
     volumes:
       - grafana-data:/var/lib/grafana
 
@@ -119,8 +120,6 @@ services:
     volumes:
       - ./prometheus:/etc/prometheus/
       - prometheus_data:/prometheus
-    ports:
-      - "8090:8090"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
 volumes:
