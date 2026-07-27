@@ -104,6 +104,8 @@ services:
       - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
       - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
       - GF_USERS_ALLOW_SIGN_UP=false
     labels:
       - "traefik.enable=true"
@@ -114,6 +116,21 @@ services:
     restart: unless-stopped
     volumes:
       - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/provisioning/dashboards/url-shortener.json:/var/lib/grafana/dashboards/url-shortener.json:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  k6:
+    image: docker.io/grafana/k6:latest
+    volumes:
+      - ./k6:/scripts
+    depends_on:
+      traefik:
+        condition: service_healthy
 
   prometheus:
     image: docker.io/prom/prometheus
