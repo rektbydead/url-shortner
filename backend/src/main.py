@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 from dependencies.get_engine import get_engine
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
-from routers import url_shortner_router, health_check, metrics
+from routers import url_shortner_router, health_check
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from starlette.middleware.cors import CORSMiddleware
 

@@ -51,8 +51,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
-      - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/api"
-      - "traefik.http.routers.backend.middlewares=strip-api,compress"
+      - "traefik.http.middlewares.backend-strip.stripprefix.prefixes=/api"
+      - "traefik.http.routers.backend.middlewares=backend-strip,compress"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
     depends_on:
       postgres-primary:
@@ -98,6 +98,22 @@ services:
       timeout: 3s
       retries: 10
 
+  grafana:
+    image: docker.io/grafana/grafana:latest
+    environment:
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.compress.compress=true"
+      - "traefik.http.routers.grafana.middlewares=compress"
+      - "traefik.http.routers.grafana.rule=PathPrefix(`/grafana/`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+    expose:
+      - 3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+
   prometheus:
     image: docker.io/prom/prometheus
     volumes:
@@ -107,16 +123,8 @@ services:
       - "8090:8090"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
-
-  k6:
-    image: docker.io/grafana/k6:latest
-    volumes:
-      - ./k6:/scripts
-    depends_on:
-      traefik:
-        condition: service_healthy
-
 volumes:
   primary_postgres_data:
   prometheus_data:
   prometheus_multiproc:
+  grafana-data:
