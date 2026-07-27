@@ -37,8 +37,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-Instrumentator().instrument(app)
+Instrumentator().instrument(app).expose(app)
 
 app.include_router(health_check.router, prefix="/health", tags=["health-check"])
 app.include_router(url_shortner_router.router, prefix="/shortner", tags=["urls"])
-app.include_router(metrics.router, prefix="/metrics", tags=["metrics"])
