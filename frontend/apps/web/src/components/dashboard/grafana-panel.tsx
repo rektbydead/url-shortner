@@ -24,8 +24,10 @@ export function GrafanaPanel({ panelId, title, }: { panelId: number, title: stri
   return (
     <iframe
       src={src}
-      height="250"
-      className="pointer-events-none w-full"
+      height={250}
+      frameBorder="0"
+      scrolling="no"
+      className="w-full"
       title={title}
       onLoad={handleLoad}
     />
