@@ -29,6 +29,11 @@ export default function DashboardK6Section() {
       label: "RPS 50/50",
       description: "Max RPS, 1000 VUs, balanced, 3min",
     },
+    {
+      value: "db_stress.js",
+      label: "Database Stress Test",
+      description: "Max RPS, 1000 VUs, random-read-only, super-read-heavy, 5min",
+    },
   ]
   const [selectedTest, setSelectedTest] = useState<string>(K6_TESTS[0].value)
 
