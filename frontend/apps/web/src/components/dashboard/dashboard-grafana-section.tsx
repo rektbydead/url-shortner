@@ -11,6 +11,8 @@ export default function DashboardGrafanaSection() {
     { id: 4, title: "Latency P50" },
     { id: 5, title: "Latency P95" },
     { id: 6, title: "Latency P99" },
+    { id: 10, title: "PG Active Connections" },
+    { id: 11, title: "PG Cache Hit Ratio" },
   ]
 
   return (

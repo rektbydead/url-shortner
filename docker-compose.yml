@@ -125,6 +125,33 @@ services:
       timeout: 5s
       retries: 5
 
+  postgres-exporter-primary:
+    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres-primary:5432/${DATABASE_NAME}?sslmode=disable"
+    restart: unless-stopped
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+
+  postgres-exporter-replica-1:
+    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres-replica-1:5432/${DATABASE_NAME}?sslmode=disable"
+    restart: unless-stopped
+    depends_on:
+      postgres-replica-1:
+        condition: service_started
+
+  postgres-exporter-replica-2:
+    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres-replica-2:5432/${DATABASE_NAME}?sslmode=disable"
+    restart: unless-stopped
+    depends_on:
+      postgres-replica-2:
+        condition: service_started
+
   k6:
     image: docker.io/grafana/k6:latest
     volumes:
