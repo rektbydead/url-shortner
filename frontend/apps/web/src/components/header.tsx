@@ -1,4 +1,5 @@
 import {Minimize, Moon, Sun} from "lucide-react"
+import {Link, useLocation} from "react-router-dom"
 import {useTheme} from "@/components/theme-provider"
 import {SocialLink} from "@/components/icons/social-link.tsx";
 import {GitHubIcon} from "@/components/icons/github-icon.tsx";
@@ -23,17 +24,17 @@ function ThemeToggle() {
 }
 
 export function Header() {
+  const {pathname} = useLocation()
+
   return (
-    <header
-      className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50">
+    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-5 sm:px-6">
         <a
           href="/"
           className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
         >
-          <div
-            className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Minimize className="size-3.5" strokeWidth={2.5}/>
+          <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <Minimize className="size-3.5" strokeWidth={2.5} />
           </div>
           <span className="flex items-baseline gap-1.5">
             <span className="text-sm font-semibold tracking-tight text-foreground">
@@ -45,16 +46,41 @@ export function Header() {
           </span>
         </a>
 
-        <div className="flex items-center gap-0.5">
-          <SocialLink href="https://github.com/rektbydead/url-shortner" label="GitHub">
-            <GitHubIcon className="size-[18px]"/>
+        <nav className="flex items-center gap-0.5">
+          <Link
+            to="/"
+            className={`inline-flex h-8 items-center rounded-lg px-3 text-sm transition-colors hover:bg-accent hover:text-foreground ${pathname === "/" ? "text-foreground" : "text-muted-foreground"}`}
+          >
+            Home
+          </Link>
+
+          <Link
+            to="/dashboard"
+            className={`inline-flex h-8 items-center rounded-lg px-3 text-sm transition-colors hover:bg-accent hover:text-foreground ${pathname === "/dashboard" ? "text-foreground" : "text-muted-foreground"}`}
+          >
+            Dashboard
+          </Link>
+
+          <div className="mx-1 h-4 w-px bg-border" />
+
+          <SocialLink
+            href="https://github.com/rektbydead/url-shortner"
+            label="GitHub"
+          >
+            <GitHubIcon className="size-[18px]" />
           </SocialLink>
-          <SocialLink href="https://www.linkedin.com/in/rubenlousada/" label="LinkedIn">
-            <LinkedInIcon className="size-[18px]"/>
+
+          <SocialLink
+            href="https://www.linkedin.com/in/rubenlousada/"
+            label="LinkedIn"
+          >
+            <LinkedInIcon className="size-[18px]" />
           </SocialLink>
-          <div className="mx-1 h-4 w-px bg-border"/>
-          <ThemeToggle/>
-        </div>
+
+          <div className="mx-1 h-4 w-px bg-border" />
+
+          <ThemeToggle />
+        </nav>
       </div>
     </header>
   )
