@@ -107,6 +107,7 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_EXPLORE_ENABLED=false
     labels:
       - "traefik.enable=true"
       - "traefik.http.middlewares.compress.compress=true"
