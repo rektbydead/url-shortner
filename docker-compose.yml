@@ -42,13 +42,17 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
+    environment:
+      - PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus_multiproc
+    volumes:
+      - prometheus_multiproc:/tmp/prometheus_multiproc
     env_file:
       - ./backend/.env
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
-      - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/api"
-      - "traefik.http.routers.backend.middlewares=strip-api,compress"
+      - "traefik.http.middlewares.backend-strip.stripprefix.prefixes=/api"
+      - "traefik.http.routers.backend.middlewares=backend-strip,compress"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
     depends_on:
       postgres-primary:
@@ -94,6 +98,60 @@ services:
       timeout: 3s
       retries: 10
 
+  grafana:
+    image: docker.io/grafana/grafana:latest
+    environment:
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_EXPLORE_ENABLED=false
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.compress.compress=true"
+      - "traefik.http.routers.grafana.middlewares=compress"
+      - "traefik.http.routers.grafana.rule=PathPrefix(`/grafana/`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+    restart: unless-stopped
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/provisioning/dashboards/url-shortener.json:/var/lib/grafana/dashboards/url-shortener.json:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-exporter-primary:
+    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres-primary:5432/${DATABASE_NAME}?sslmode=disable"
+    restart: unless-stopped
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+
+  postgres-exporter-replica-1:
+    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres-replica-1:5432/${DATABASE_NAME}?sslmode=disable"
+    restart: unless-stopped
+    depends_on:
+      postgres-replica-1:
+        condition: service_started
+
+  postgres-exporter-replica-2:
+    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres-replica-2:5432/${DATABASE_NAME}?sslmode=disable"
+    restart: unless-stopped
+    depends_on:
+      postgres-replica-2:
+        condition: service_started
+
   k6:
     image: docker.io/grafana/k6:latest
     volumes:
@@ -102,5 +160,15 @@ services:
       traefik:
         condition: service_healthy
 
+  prometheus:
+    image: docker.io/prom/prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
 volumes:
   primary_postgres_data:
+  prometheus_data:
+  prometheus_multiproc:
+  grafana-data:

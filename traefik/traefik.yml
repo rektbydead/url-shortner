@@ -11,11 +11,11 @@ providers:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
 
-accessLog:
-  bufferingSize: 250
-  filters:
-    statusCodes:
-      - "400-599"
-
-log:
-  level: INFO
+# accessLog:
+#   bufferingSize: 250
+#   filters:
+#     statusCodes:
+#       - "400-599"
+#
+# log:
+#   level: INFO

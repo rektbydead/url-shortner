@@ -10,6 +10,7 @@ export const frontendCount = new Counter("frontend_hits")
 export const failedCount = new Counter("failed_requests")
 export const createDuration = new Trend("create_duration", true)
 export const readDuration = new Trend("read_duration", true)
+export const readRandomDuration = new Trend("read_random_duration", true)
 
 const SEED_COUNT = 200
 
@@ -83,4 +84,18 @@ export function hitFrontend() {
 export function randomUuid(uuids) {
     if (!uuids || uuids.length === 0) return null
     return uuids[Math.floor(Math.random() * uuids.length)]
+}
+
+export function getRandomShortUrl(numberOfEntries) {
+    const res = http.get(`${BASE_URL}/random/${numberOfEntries}`)
+
+    readRandomDuration.add(res.timings.duration)
+
+    if (res.status === 200) {
+        readCount.add(1)
+    } else {
+        failedCount.add(1)
+    }
+
+    return res
 }
