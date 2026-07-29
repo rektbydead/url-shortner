@@ -11,7 +11,7 @@ export function GrafanaPanel({ panelId, title, }: { panelId: number, title: stri
       : theme
 
   const GRAFANA_BASE = "http://localhost/grafana/d-solo/url-shortener/url-shortener"
-  const src = `${GRAFANA_BASE}?orgId=1&panelId=${panelId}&kiosk&theme=${resolvedTheme}`
+  const src = `${GRAFANA_BASE}?orgId=1&panelId=${panelId}&kiosk&theme=${resolvedTheme}&from=now-60m&to=now&refresh=10s`
 
   const handleLoad = useCallback((e: React.SyntheticEvent<HTMLIFrameElement>) => {
       const document = e.currentTarget.contentDocument
