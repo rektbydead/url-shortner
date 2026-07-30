@@ -46,6 +46,7 @@ services:
       - PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus_multiproc
     volumes:
       - prometheus_multiproc:/tmp/prometheus_multiproc
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     env_file:
       - ./backend/.env
     labels:

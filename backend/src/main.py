@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 from dependencies.get_engine import get_engine
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
-from routers import url_shortner_router, health_check
+from routers import url_shortner_router, health_check, k6_router
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from starlette.middleware.cors import CORSMiddleware
 
@@ -41,3 +41,4 @@ Instrumentator().instrument(app).expose(app)
 
 app.include_router(health_check.router, prefix="/health", tags=["health-check"])
 app.include_router(url_shortner_router.router, prefix="/shortner", tags=["urls"])
+app.include_router(k6_router.router, prefix="/k6", tags=["k6"])
