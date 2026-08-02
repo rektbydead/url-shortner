@@ -41,4 +41,5 @@ class K6Repository:
         self._session.add(container)
         await self._session.flush()
         await self._session.refresh(container)
+        await self._session.commit()
         return container

@@ -49,6 +49,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     env_file:
       - ./backend/.env
+    deploy:
+      replicas: 2
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
@@ -153,13 +155,13 @@ services:
       postgres-replica-2:
         condition: service_started
 
-  k6:
-    image: docker.io/grafana/k6:latest
-    volumes:
-      - ./k6:/scripts
-    depends_on:
-      traefik:
-        condition: service_healthy
+  # k6:
+  #   image: docker.io/grafana/k6:latest
+  #   volumes:
+  #     - ./k6:/scripts
+  #   depends_on:
+  #     traefik:
+  #       condition: service_healthy
 
   prometheus:
     image: docker.io/prom/prometheus

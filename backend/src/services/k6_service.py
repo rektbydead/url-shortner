@@ -1,5 +1,6 @@
 import asyncio
 import json
+from pathlib import Path
 from sqlite3 import IntegrityError
 from typing import Annotated
 from uuid import UUID
@@ -19,7 +20,7 @@ class K6Service:
 
     K6_IMAGE = "docker.io/grafana/k6:latest"
     K6_NETWORK = "url-shortner_default"
-    K6_SCRIPTS_PATH = "/scripts"
+    K6_SCRIPTS_PATH = str(Path("/home/ruben/Desktop/school work/url-shortner/k6").resolve())
 
     def __init__(
             self,
@@ -44,10 +45,9 @@ class K6Service:
             container = await asyncio.to_thread(
                 self.client.containers.run,
                 image=self.K6_IMAGE,
-                command=f"run /scripts/{test_name}.js",
+                command=f"run /scripts/{test_name}",
                 volumes={self.K6_SCRIPTS_PATH: {"bind": "/scripts", "mode": "ro"}},
                 network=self.K6_NETWORK,
-                remove=True,
                 detach=True,
             )
 
@@ -107,7 +107,7 @@ class K6Service:
 
     async def handle_command(self, websocket: WebSocket, payload: dict):
         action = payload.get("action")
-        test_name = payload.get("test")  # e.g. "stress", "smoke"
+        test_name = payload.get("test")
 
         match action:
             case "status":
