@@ -1,5 +1,5 @@
 import { check, sleep } from "k6"
-import {setup, createShortUrl, readShortUrl, hitFrontend, randomUuid, getRandomShortUrl} from "./helpers.js"
+import {setup, createShortUrl, readShortUrl, hitFrontend, randomUuid, getRandomShortUrl, updateProgress} from "./helpers.js"
 
 export { setup }
 
@@ -17,6 +17,8 @@ export const options = {
 // Go from 200 to 5000 VUs over 8 hours.
 // The breaking point is reached when p95 latency spikes or errors appear.
 export default function (data) {
+    updateProgress()
+
     const random = Math.random()
 
     if (random < 0.20) {
