@@ -3,6 +3,10 @@ import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
+from repositories.k6_repository import K6Repository
+from services.k6_service import K6Service
+from settings.session_local import SessionLocal
+
 from dependencies.get_engine import get_engine
 from entities.base_entity import BaseEntity
 from entities.k6_container_entity import K6ContainerEntity  # noqa: F401
@@ -25,10 +29,22 @@ async def create_db_and_tables(engine: AsyncEngine):
         logger.warning("table creation skipped (already exists)")
 
 
+async def end_k6_test():
+    async with SessionLocal() as session:
+        repository = K6Repository(session)
+        running_container = await repository.get_running_container()
+
+        logger.info("Shutdown0")
+        if running_container:
+            await repository.set_ended(running_container.id)
+            logger.info("Shutdown1")
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncGenerator:
     engine = get_engine()
     await create_db_and_tables(engine)
+    await end_k6_test()
     yield
 
 

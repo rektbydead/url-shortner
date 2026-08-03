@@ -1,5 +1,8 @@
 import asyncio
 import json
+from datetime import datetime, timezone
+
+import httpx
 from pathlib import Path
 from sqlite3 import IntegrityError
 from typing import Annotated
@@ -18,9 +21,11 @@ from settings.session_local import SessionLocal
 class K6Service:
     client = docker.from_env()
 
+    K6_NAME = "k6"
     K6_IMAGE = "docker.io/grafana/k6:latest"
     K6_NETWORK = "url-shortner_default"
     K6_SCRIPTS_PATH = str(Path("/home/ruben/Desktop/school work/url-shortner/k6").resolve())
+    K6_VOLUME = {K6_SCRIPTS_PATH: {"bind": "/scripts", "mode": "ro"}}
 
     def __init__(
             self,
@@ -28,24 +33,70 @@ class K6Service:
     ):
         self.k6_repository = k6_repository
 
-    async def _handle_status(self, websocket: WebSocket):
-        container = await self.k6_repository.get_running_container()
 
-        if not container:
-            return await websocket.send_text(json.dumps({"status": "idle"}))
+    def _metric_sample(self, metrics_data: list, metric_id: str) -> dict:
+        for metric in metrics_data:
+            if metric.get("id") == metric_id:
+                return metric.get("attributes", {}).get("sample", {})
 
-        return await websocket.send_text(json.dumps({
-            "status": container.status,
-            "test": container.test_performed,
-            "started_at": container.started_at.isoformat(),
-        }))
+        return {}
+
+    async def get_k6_test_status(self, websocket: WebSocket):
+        entity = await self.k6_repository.get_running_container()
+
+        if not entity:
+            return
+
+        try:
+            containers = await asyncio.to_thread(
+                self.client.containers.list,
+                filters={"ancestor": self.K6_IMAGE, "status": K6ContainerStatus.RUNNING}
+            )
+
+            if not containers:
+                return
+
+            container = containers[0]
+            container.reload()
+
+            ip = container.attrs["NetworkSettings"]["Networks"][self.K6_NETWORK]["IPAddress"]
+
+            async with httpx.AsyncClient() as async_client:
+                status_response = await async_client.get(
+                    f"http://{ip}:6565/v1/status",
+                    timeout=2,
+                )
+                metrics_response = await async_client.get(
+                    f"http://{ip}:6565/v1/metrics",
+                    timeout=2,
+                )
+
+            status_attributes = status_response.json()["data"]["attributes"]
+            metrics_data = metrics_response.json()["data"]
+
+            await websocket.send_text(json.dumps({
+                "status": entity.status,
+                "test": entity.test_performed,
+                "started_at": entity.started_at.isoformat(),
+                "running_time": round((datetime.now(timezone.utc) - entity.started_at).total_seconds(), 1),
+                "metrics": {
+                    "progress_percentage": self._metric_sample(metrics_data, "test_progress").get("value", 0),
+                    "vus": status_attributes.get("vus") or 0,
+                    "max_vus": status_attributes.get("vus-max") or 0,
+                    "total_requests": self._metric_sample(metrics_data, "http_reqs").get("count", 0),
+                }
+            }))
+        except httpx.HTTPError as e:
+            await websocket.send_json({"error": str(e)})
+        except docker.errors.APIError as e:
+            await websocket.send_json({"error": str(e)})
 
     async def _run_k6(self, websocket: WebSocket, entity_id: UUID, test_name: str):
         try:
             container = await asyncio.to_thread(
                 self.client.containers.run,
                 image=self.K6_IMAGE,
-                command=f"run /scripts/{test_name}",
+                command=f"run --address 0.0.0.0:6565 /scripts/{test_name}",
                 volumes={self.K6_SCRIPTS_PATH: {"bind": "/scripts", "mode": "ro"}},
                 network=self.K6_NETWORK,
                 detach=True,
@@ -81,7 +132,7 @@ class K6Service:
             await websocket.send_text(json.dumps({"error": str(e)}))
             return
 
-        await websocket.send_text(json.dumps({"status": "starting", "test": test_name}))
+        await websocket.send_text(json.dumps({"status": K6ContainerStatus.PENDING, "test": test_name}))
         asyncio.create_task(self._run_k6(websocket, entity.id, test_name))
 
     async def _handle_stop(self, websocket: WebSocket):
@@ -106,15 +157,15 @@ class K6Service:
             await websocket.send_text(json.dumps({"error": str(e)}))
 
     async def handle_command(self, websocket: WebSocket, payload: dict):
-        action = payload.get("action")
-        test_name = payload.get("test")
+        action = payload.get("action", None)
+        test_name = payload.get("test", "")
 
         match action:
-            case "status":
-                await self._handle_status(websocket)
             case "start":
                 await self._handle_start(websocket, test_name)
             case "stop":
                 await self._handle_stop(websocket)
             case _:
                 await websocket.send_text(json.dumps({"error": f"unknown action: {action}"}))
+
+

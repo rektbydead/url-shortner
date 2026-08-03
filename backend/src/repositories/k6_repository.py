@@ -13,7 +13,7 @@ class K6Repository:
     def __init__(self, async_session: AsyncSession):
         self._session = async_session
 
-    async def get_running_container(self) -> K6ContainerEntity:
+    async def get_running_container(self) -> K6ContainerEntity | None:
         return await self._session.scalar(
             select(K6ContainerEntity).where(
                 K6ContainerEntity.status.in_([K6ContainerStatus.PENDING, K6ContainerStatus.RUNNING])
