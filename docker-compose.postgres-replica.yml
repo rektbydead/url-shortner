@@ -9,3 +9,9 @@ services:
       - ./postgresql/replica/start-replica.sh:/start-replica.sh
     command: sh /start-replica.sh
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DATABASE_USER}" ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
