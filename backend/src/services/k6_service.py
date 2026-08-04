@@ -18,7 +18,7 @@ from repositories.k6_repository import K6Repository
 from settings.session_local import SessionLocal
 from settings.settings import Settings
 
-
+# Eventually refactor this class ... Makes no sense the service send the websocket message
 class K6Service:
     client = docker.from_env()
     settings = Settings()
