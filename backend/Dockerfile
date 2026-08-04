@@ -15,4 +15,4 @@ COPY src .
 
 EXPOSE 8000
 
-CMD ["gunicorn", "-c", "settings/gunicorn_worker_exit.py","--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000", "--capture-output", "--enable-stdio-inheritance", "--log-level", "debug", "main:app"]
+CMD ["gunicorn", "-c", "settings/gunicorn_worker_exit.py","--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000", "--capture-output", "--enable-stdio-inheritance", "--log-level", "info", "main:app"]

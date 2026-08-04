@@ -16,7 +16,8 @@ dependencies = [
     "pydantic-settings==2.14.2",
     "asyncpg==0.31.0",
     "prometheus_client==0.26.0",
-    "prometheus-fastapi-instrumentator==8.0.2"
+    "prometheus-fastapi-instrumentator==8.0.2",
+    "docker==7.2.0"
 ]
 
 [project.optional-dependencies]

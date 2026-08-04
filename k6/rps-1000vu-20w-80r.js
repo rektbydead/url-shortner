@@ -1,5 +1,5 @@
 import { check } from "k6"
-import { setup, createShortUrl, readShortUrl, randomUuid } from "./helpers.js"
+import { setup, createShortUrl, readShortUrl, randomUuid, updateProgress } from "./helpers.js"
 
 export { setup }
 
@@ -16,6 +16,8 @@ export const options = {
 // 1000 VUs with no sleep, 20/80 write-to-read ratio.
 // Look for http_reqs/s - the higher, the better
 export default function (data) {
+    updateProgress()
+
     const random = Math.random()
 
     if (random < 0.20) {

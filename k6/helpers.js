@@ -1,5 +1,6 @@
+import exec from "k6/execution"
 import http from "k6/http"
-import {Counter, Trend} from "k6/metrics"
+import {Counter, Trend, Gauge} from "k6/metrics"
 
 export const TRAEFIK_URL = "http://traefik:80"
 export const BASE_URL = `${TRAEFIK_URL}/api/shortner`
@@ -11,6 +12,11 @@ export const failedCount = new Counter("failed_requests")
 export const createDuration = new Trend("create_duration", true)
 export const readDuration = new Trend("read_duration", true)
 export const readRandomDuration = new Trend("read_random_duration", true)
+export const testProgress = new Gauge("test_progress")
+
+export function updateProgress() {
+    testProgress.add(exec.scenario.progress)
+}
 
 const SEED_COUNT = 200
 
