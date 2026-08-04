@@ -16,15 +16,17 @@ from dependencies.get_k6_repository import get_k6_repository
 from enums.K6ContainerStatus import K6ContainerStatus
 from repositories.k6_repository import K6Repository
 from settings.session_local import SessionLocal
+from settings.settings import Settings
 
 
 class K6Service:
     client = docker.from_env()
+    settings = Settings()
 
     K6_NAME = "k6"
     K6_IMAGE = "docker.io/grafana/k6:latest"
     K6_NETWORK = "url-shortner_default"
-    K6_SCRIPTS_PATH = str(Path("/home/ruben/Desktop/school work/url-shortner/k6").resolve())
+    K6_SCRIPTS_PATH = str(Path(settings.K6_TESTS_DIRECTORY))
     K6_VOLUME = {K6_SCRIPTS_PATH: {"bind": "/scripts", "mode": "ro"}}
 
     def __init__(
@@ -34,7 +36,8 @@ class K6Service:
         self.k6_repository = k6_repository
 
 
-    def _metric_sample(self, metrics_data: list, metric_id: str) -> dict:
+    @classmethod
+    def _metric_sample(cls, metrics_data: list, metric_id: str) -> dict:
         for metric in metrics_data:
             if metric.get("id") == metric_id:
                 return metric.get("attributes", {}).get("sample", {})
@@ -105,7 +108,7 @@ class K6Service:
             async with SessionLocal() as session:
                 await K6Repository(session).set_running(entity_id)
 
-            await websocket.send_text(json.dumps({"status": "running", "test": test_name}))
+            await websocket.send_text(json.dumps({"status": K6ContainerStatus.RUNNING, "test": test_name}))
 
             result = await asyncio.to_thread(container.wait)
 
@@ -113,7 +116,7 @@ class K6Service:
                 await K6Repository(session).set_ended(entity_id)
 
             await websocket.send_text(json.dumps({
-                "status": "ended",
+                "status": K6ContainerStatus.ENDED,
                 "exit_code": result.get("StatusCode", -1),
             }))
 
@@ -152,7 +155,7 @@ class K6Service:
                 await asyncio.to_thread(container.stop)
 
             await self.k6_repository.set_ended(entity.id)
-            await websocket.send_text(json.dumps({"status": "stopped"}))
+            await websocket.send_text(json.dumps({"status": K6ContainerStatus.ENDED}))
         except APIError as e:
             await websocket.send_text(json.dumps({"error": str(e)}))
 
