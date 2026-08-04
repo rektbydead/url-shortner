@@ -1,6 +1,5 @@
 from prometheus_client import multiprocess
 
 
-def process_exit(process):
-    if process.pid is not None:
-        multiprocess.mark_process_dead(process.pid)
+def worker_exit(server, worker):
+    multiprocess.mark_process_dead(worker.pid)
