@@ -19,4 +19,9 @@ export const K6_TESTS = [
     label: "Database Stress Test",
     description: "Max RPS, 1000 VUs, random-read-only, super-read-heavy, 5min",
   },
+  {
+    value: "long-rps-1000vu-20w-80r.js.js",
+    label: "Long RPS 20/80",
+    description: "Long-running RPS, 1000 VUs, read-heavy, 8h",
+  },
 ]

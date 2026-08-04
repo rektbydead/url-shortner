@@ -1,5 +1,5 @@
 import { check, sleep } from "k6"
-import {setup, createShortUrl, readShortUrl, hitFrontend, randomUuid, getRandomShortUrl, updateProgress} from "./helpers.js"
+import { setup, readShortUrl, randomUuid, updateProgress } from "./helpers.js"
 
 export { setup }
 
@@ -13,14 +13,13 @@ export const options = {
     },
 }
 
-// Stress test - finds the breaking point by increasing VUs per minute.
-// Go from 200 to 5000 VUs over 6 minutes (1 minute per stage).
-// The breaking point is reached when p95 latency spikes or errors appear.
 export default function (data) {
     updateProgress()
 
-    const response = getRandomShortUrl(100)
-    if (response) {
-        check(response, { "GET 200": (r) => r.status === 200 })
+    const uuid = randomUuid(data.randomShortUrls)
+    if (uuid) {
+        const res = readShortUrl(uuid)
+        check(res, { "GET 200": (r) => r.status === 200 })
+        sleep(1)
     }
 }

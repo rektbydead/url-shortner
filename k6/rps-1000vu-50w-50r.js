@@ -1,7 +1,7 @@
-import { check } from "k6"
-import { setup, createShortUrl, readShortUrl, randomUuid, updateProgress } from "./helpers.js"
+import {check} from "k6"
+import {createShortUrl, randomUuid, readShortUrl, setup, updateProgress} from "./helpers.js"
 
-export { setup }
+export {setup}
 
 export const options = {
     stages: [
@@ -12,9 +12,6 @@ export const options = {
     },
 }
 
-// RPS test — measures maximum requests per second.
-// 1000 VUs with no sleep, 50/50 write-to-read ratio.
-// Look for http_reqs/s - the higher, the better
 export default function (data) {
     updateProgress()
 
@@ -24,9 +21,9 @@ export default function (data) {
         return createShortUrl()
     }
 
-    const uuid = randomUuid(data.uuids)
+    const uuid = randomUuid(data.randomShortUrls)
     if (uuid) {
         const res = readShortUrl(uuid)
-        check(res, { "GET 200": (r) => r.status === 200 })
+        check(res, {"GET 200": (r) => r.status === 200})
     }
 }
