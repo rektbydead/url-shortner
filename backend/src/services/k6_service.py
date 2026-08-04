@@ -103,6 +103,7 @@ class K6Service:
                 volumes={self.K6_SCRIPTS_PATH: {"bind": "/scripts", "mode": "ro"}},
                 network=self.K6_NETWORK,
                 detach=True,
+                auto_remove=True
             )
 
             async with SessionLocal() as session:

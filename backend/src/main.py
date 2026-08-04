@@ -1,8 +1,12 @@
+import asyncio
 import logging
 
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
+import docker
+
+from enums.K6ContainerStatus import K6ContainerStatus
 from repositories.k6_repository import K6Repository
 from services.k6_service import K6Service
 from settings.session_local import SessionLocal
@@ -30,22 +34,30 @@ async def create_db_and_tables(engine: AsyncEngine):
 
 
 async def end_k6_test():
+    client = docker.from_env()
+
+    containers = await asyncio.to_thread(
+        client.containers.list,
+        filters={"ancestor": K6Service.K6_IMAGE, "status": K6ContainerStatus.RUNNING}
+    )
+
+    for container in containers:
+        await asyncio.to_thread(container.stop)
+
     async with SessionLocal() as session:
         repository = K6Repository(session)
         running_container = await repository.get_running_container()
 
-        logger.info("Shutdown0")
         if running_container:
             await repository.set_ended(running_container.id)
-            logger.info("Shutdown1")
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncGenerator:
     engine = get_engine()
     await create_db_and_tables(engine)
-    await end_k6_test()
     yield
+    await end_k6_test()
 
 
 app = FastAPI(lifespan=lifespan)
