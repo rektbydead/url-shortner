@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Play, Square } from "lucide-react"
 import {
   Select,
@@ -11,73 +11,66 @@ import {
 } from "@workspace/ui/components/select"
 import { Button } from "@workspace/ui/components/button"
 import { DashboardTitle } from "@/components/dashboard-title.tsx"
-import { subscribeK6, startTest, stopTest } from "@/services/k6-service.ts"
-import type { K6StatusData } from "@/services/k6-service.ts"
-
-const K6_TESTS = [
-  {
-    value: "stress.js",
-    label: "Stress Test",
-    description: "Find breaking point, 200→30k VUs, 10min",
-  },
-  {
-    value: "rps-1000vu-20w-80r.js",
-    label: "RPS 20/80",
-    description: "Max RPS, 1000 VUs, read-heavy, 3min",
-  },
-  {
-    value: "rps-1000vu-50w-50r.js",
-    label: "RPS 50/50",
-    description: "Max RPS, 1000 VUs, balanced, 3min",
-  },
-  {
-    value: "db_stress.js",
-    label: "Database Stress Test",
-    description: "Max RPS, 1000 VUs, random-read-only, super-read-heavy, 5min",
-  },
-]
+import { startTest, stopTest, subscribeK6 } from "@/services/k6-service.ts"
+import {
+  K6StatusOption,
+  type K6StatusOptionType,
+} from "@/constants/k6-status-option.ts"
+import { K6_TESTS } from "@/constants/k6-tests.ts"
+import type { K6StatusDataType } from "@/schemas/dto/k6-status-data-schema.ts"
+import type { K6RunningDataType } from "@/schemas/dto/k6-running-data-schema.ts"
 
 type K6State = {
-  status: K6StatusData["status"]
+  status: K6StatusOptionType
   test: string | null
   error: string | null
-  startedAt: string | null
-  exitCode: number | null
+  started_at: string | null
+  exit_code: number | null
+  running_time: number | null
+  metrics: K6RunningDataType["metrics"] | null
 }
 
 export default function DashboardK6Section() {
   const [selectedTest, setSelectedTest] = useState<string>(K6_TESTS[0].value)
   const [state, setState] = useState<K6State>({
-    status: "idle",
+    status: K6StatusOption.IDLE,
     test: null,
     error: null,
-    startedAt: null,
-    exitCode: null,
+    started_at: null,
+    exit_code: null,
+    running_time: null,
+    metrics: null,
   })
 
   useEffect(() => {
-    const unsubscribe = subscribeK6((data: K6StatusData) => {
-      console.log(data)
-      if (data.error) {
-        setState((prev) => ({ ...prev, status: "idle", error: data.error! }))
+    return subscribeK6((data: K6StatusDataType) => {
+      if ("error" in data) {
+        setState((prev) => ({
+          ...prev,
+          status: K6StatusOption.IDLE,
+          error: data.error!,
+        }))
         return
       }
-      setState({
+
+      setState(prev => ({
         status: data.status,
-        test: data.test ?? null,
+        test: "test" in data ? data.test : prev.test,
         error: null,
-        startedAt: data.started_at ?? null,
-        exitCode: data.exit_code ?? null,
-      })
+        started_at: "started_at" in data ? data.started_at : prev.started_at,
+        exit_code: "exit_code" in data ? data.exit_code : prev.exit_code,
+        running_time: "running_time" in data ? data.running_time : prev.running_time,
+        metrics: "metrics" in data ? data.metrics : prev.metrics,
+      }))
     })
-    return unsubscribe
   }, [])
 
-  const isRunning = state.status === "starting" || state.status === "running"
+  const isRunning =
+    state.status === K6StatusOption.PENDING ||
+    state.status === K6StatusOption.RUNNING
 
   const handleRun = useCallback(() => {
     startTest(selectedTest)
-    setState((prev) => ({ ...prev, error: null }))
   }, [selectedTest])
 
   const handleStop = useCallback(() => {
@@ -124,7 +117,11 @@ export default function DashboardK6Section() {
         </Select>
 
         {isRunning ? (
-          <Button variant="destructive" onClick={handleStop} className="cursor-pointer">
+          <Button
+            variant="destructive"
+            onClick={handleStop}
+            className="cursor-pointer"
+          >
             <Square className="size-3.5" />
             Stop
           </Button>
@@ -136,18 +133,30 @@ export default function DashboardK6Section() {
         )}
       </div>
 
-      {state.status !== "idle" && (
-        <p className="text-sm text-muted-foreground">
-          {state.status === "starting" && `Starting ${state.test}…`}
-          {state.status === "running" && `Running ${state.test}…`}
-          {state.status === "ended" && `Completed ${state.test} (exit ${state.exitCode ?? "—"})`}
-          {state.status === "stopped" && "Test stopped"}
-        </p>
+      {state.status !== K6StatusOption.IDLE && (
+        <div className="text-sm text-muted-foreground">
+          {state.status === K6StatusOption.PENDING && (
+            <p>Starting {state.test}…</p>
+          )}
+
+          {state.status === K6StatusOption.RUNNING && state.metrics && (
+            <>
+              <p>Running {state.test}…</p>
+              <p>
+                {(state.metrics.progress_percentage * 100).toFixed(2)}% ·
+                {" "}VUs {state.metrics.vus}/{state.metrics.max_vus} ·
+                {" "}Requests {state.metrics.total_requests}
+              </p>
+            </>
+          )}
+
+          {state.status === K6StatusOption.ENDED && (
+            <p>Completed (exit {state.exit_code})</p>
+          )}
+        </div>
       )}
 
-      {state.error && (
-        <p className="text-sm text-destructive">{state.error}</p>
-      )}
+      {state.error && <p className="text-sm text-destructive">{state.error}</p>}
     </section>
   )
 }

@@ -1,12 +1,9 @@
-export interface K6StatusData {
-  status: "idle" | "starting" | "running" | "ended" | "stopped"
-  test?: string
-  exit_code?: number
-  started_at?: string
-  error?: string
-}
+import {
+  K6StatusDataSchema,
+  type K6StatusDataType,
+} from "@/schemas/dto/k6-status-data-schema.ts"
 
-type K6Listener = (data: K6StatusData) => void
+type K6Listener = (data: K6StatusDataType) => void
 
 let ws: WebSocket | null = null
 const listeners: Set<K6Listener> = new Set()
@@ -24,25 +21,26 @@ function connect() {
 
   ws = new WebSocket(getWebSocketUrl())
 
-  ws.onopen = () => {
-    ws!.send(JSON.stringify({ action: "status" }))
-  }
-
   ws.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data)
-      listeners.forEach((fn) => fn(data as K6StatusData))
-    } catch {
-      // ignore non-JSON messages
+    const raw: unknown = JSON.parse(event.data)
+    const parsed = K6StatusDataSchema.safeParse(raw)
+
+    if (!parsed.success) {
+      console.warn("K6 WS: received message that didn't match schema", parsed.error, raw)
+      return
     }
+
+    listeners.forEach((fn) => fn(parsed.data))
   }
 
   ws.onclose = () => {
     ws = null
+
     if (intentionalClose) {
       intentionalClose = false
       return
     }
+
     reconnectTimer = setTimeout(connect, 3000)
   }
 
@@ -65,18 +63,16 @@ export function stopTest() {
   send({ action: "stop" })
 }
 
-export function requestStatus() {
-  send({ action: "status" })
-}
-
 export function subscribeK6(listener: K6Listener): () => void {
   listeners.add(listener)
   connect()
 
   return () => {
     listeners.delete(listener)
+
     if (listeners.size === 0) {
       if (reconnectTimer) clearTimeout(reconnectTimer)
+
       intentionalClose = true
       ws?.close()
       ws = null
