@@ -3,9 +3,8 @@
 </p>
 
 <h1 align="center">Lousada's URL Shortener</h1>
-
-<p align="center">
-  <i>Shorten URLs. Scale reads. Break things with k6.</i>
+<p align="center" style="margin-top: -20px">
+  Paste a long URL -> get a not so short one -> UUID cries :(
 </p>
 
 <p align="center">
@@ -18,6 +17,10 @@
   <img src="https://img.shields.io/badge/Prometheus-Grafana-E6522C?style=flat-square&logo=prometheus&logoColor=white" alt="Prometheus/Grafana"/>
   <img src="https://img.shields.io/badge/k6-Load%20Testing-7D64FF?style=flat-square&logo=k6&logoColor=white" alt="k6"/>
   <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker Compose"/>
+</p>
+
+<p align="center" >
+  <i>Shorten URLs. Scale reads. Break things with k6.</i>
 </p>
 
 ---
@@ -184,5 +187,5 @@ Behind Traefik the base is `http://localhost/api` (prefix stripped). Running the
 
 ## Roadmap
 
-- [ ] **Base62 short codes** instead of UUIDs — `youtu.be/dQw4w9`-style links
-- [ ] **Server-side 301 redirects** instead of client-side navigation
+- [ ] **Base62 short codes** instead of UUIDs
+- [ ] **Server-side 302 redirects** instead of client-side navigation
