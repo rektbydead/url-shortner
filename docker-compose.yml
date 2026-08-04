@@ -56,10 +56,14 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
       - "traefik.http.middlewares.backend-strip.stripprefix.prefixes=/api"
-      - "traefik.http.routers.backend.middlewares=backend-strip,compress"
+      - "traefik.http.routers.backend.middlewares=backend-strip"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
     depends_on:
       postgres-primary:
+        condition: service_healthy
+      postgres-replica-1:
+        condition: service_healthy
+      postgres-replica-2:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -102,7 +106,7 @@ services:
       retries: 10
 
   grafana:
-    image: docker.io/grafana/grafana:latest
+    image: docker.io/grafana/grafana:13.1.1
     environment:
       - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
@@ -129,7 +133,7 @@ services:
       retries: 5
 
   postgres-exporter-primary:
-    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.20.1
     environment:
       DATA_SOURCE_NAME: "postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres-primary:5432/${DATABASE_NAME}?sslmode=disable"
     restart: unless-stopped
@@ -138,7 +142,7 @@ services:
         condition: service_healthy
 
   postgres-exporter-replica-1:
-    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.20.1
     environment:
       DATA_SOURCE_NAME: "postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres-replica-1:5432/${DATABASE_NAME}?sslmode=disable"
     restart: unless-stopped
@@ -147,7 +151,7 @@ services:
         condition: service_started
 
   postgres-exporter-replica-2:
-    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.20.1
     environment:
       DATA_SOURCE_NAME: "postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres-replica-2:5432/${DATABASE_NAME}?sslmode=disable"
     restart: unless-stopped
@@ -156,7 +160,7 @@ services:
         condition: service_started
 
   # k6:
-  #   image: docker.io/grafana/k6:latest
+  #   image: docker.io/grafana/k6:2.1.0
   #   volumes:
   #     - ./k6:/scripts
   #   depends_on:
@@ -164,7 +168,7 @@ services:
   #       condition: service_healthy
 
   prometheus:
-    image: docker.io/prom/prometheus
+    image: docker.io/prom/prometheus:v3.13.2
     volumes:
       - ./prometheus:/etc/prometheus/
       - prometheus_data:/prometheus
