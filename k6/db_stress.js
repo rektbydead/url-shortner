@@ -1,5 +1,5 @@
 import { check, sleep } from "k6"
-import { setup, readShortUrl, randomUuid, updateProgress } from "./helpers.js"
+import {setup, readShortUrl, randomUuid, updateProgress, getRandomShortUrl} from "./helpers.js"
 
 export { setup }
 
@@ -16,10 +16,6 @@ export const options = {
 export default function (data) {
     updateProgress()
 
-    const uuid = randomUuid(data.randomShortUrls)
-    if (uuid) {
-        const res = readShortUrl(uuid)
-        check(res, { "GET 200": (r) => r.status === 200 })
-        sleep(1)
-    }
+    const res = getRandomShortUrl(1000)
+    check(res, { "GET 200": (r) => r.status === 200 })
 }
